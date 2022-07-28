@@ -12,9 +12,7 @@
 	];
 	let count = 0;
 	let gameEnd = '';
-
 	let gameStatus = '';
-
 	let turn = 'Player 1';
 
 	let ticTacToe = '';
@@ -56,7 +54,7 @@
 			arrayNumber[4].clicked == checkNumber &&
 			arrayNumber[7].clicked == checkNumber
 		) {
-			ticTacToe = 'Player 1 258';
+			ticTacToe = player + ' 258';
 			gameEnd = player + ' Tic Tac Toe';
 		} else if (
 			arrayNumber[2].clicked == checkNumber &&
@@ -73,9 +71,9 @@
 			ticTacToe = player + ' 369';
 			gameEnd = player + ' Tic Tac Toe';
 		} else if (
-			arrayNumber[3].clicked == 1 &&
-			arrayNumber[4].clicked == 1 &&
-			arrayNumber[5].clicked == 1
+			arrayNumber[3].clicked == checkNumber &&
+			arrayNumber[4].clicked == checkNumber &&
+			arrayNumber[5].clicked == checkNumber
 		) {
 			ticTacToe = player + ' 456';
 			gameEnd = player + ' Tic Tac Toe';
@@ -89,9 +87,8 @@
 		}
 	}
 
-
 	$: if (turn === 'Computer') {
-		setTimeout(computerGuess, 750 );
+		setTimeout(computerGuess, 500);
 	}
 
 	function computerGuess() {
@@ -116,9 +113,9 @@
 			console.log('Guess number:' + guessNumber);
 			arrayNumber[guessNumber - 1].clicked = 3;
 		}
-
 		if (count < 9) {
-            count = count +1;
+			count = count + 1;
+			checkTTT('Computer');
 			turn = 'Player 1';
 		}
 	}
@@ -152,33 +149,42 @@
 								gameEnd +
 								'! Select Reset to clear the board and start a new game!'
 						);
-					} else if (gameStatus === 'TwoPlayer') {
-						if (turn === 'Player 1') {
-							arrayNumber[square.number - 1].clicked = 1;
-							turn = 'Player 2';
-						} else {
-							arrayNumber[square.number - 1].clicked = 2;
-							turn = 'Player 1';
-						}
-						checkTTT('Player 1');
-						checkTTT('Player 2');
-						count = count + 1;
-						if (count == 9 && gameEnd === "") {
-							gameEnd = 'Cat Game';
-						}
-					} else if (gameStatus === 'VsComputer') {
-						if (turn === 'Player 1') {
-							arrayNumber[square.number - 1].clicked = 1;
-                            count = count + 1;
-						}
-						checkTTT('Player 1');
-						checkTTT('Computer');
-						
-						if (count < 9) {
-							turn = 'Computer';
-						}
-						if (count == 9 && gameEnd === "") {
-							gameEnd = 'Cat Game';
+					} else if (arrayNumber[square.number - 1].clicked == 0) {
+						if (gameStatus === 'TwoPlayer') {
+							if (turn === 'Player 1') {
+								arrayNumber[square.number - 1].clicked = 1;
+								turn = 'Player 2';
+							} else {
+								arrayNumber[square.number - 1].clicked = 2;
+								turn = 'Player 1';
+							}
+							checkTTT('Player 1');
+							checkTTT('Player 2');
+							count = count + 1;
+							if (count == 9 && gameEnd === '') {
+								gameEnd = 'Cat Game';
+							}
+						} else if (gameStatus === 'VsComputer') {
+							if (turn === 'Player 1') {
+								arrayNumber[square.number - 1].clicked = 1;
+								count = count + 1;
+							}
+							checkTTT('Player 1');
+							if ((gameEnd === '')) {
+								checkTTT('Computer');
+							}
+
+							if (count < 9) {
+								turn = 'Computer';
+							}
+							if (count >  8){
+								if(gameEnd === ""){
+									gameEnd = 'Cat Game';
+								}
+							
+							
+								
+							}
 						}
 					}
 				}}
@@ -236,7 +242,7 @@
 				];
 				ticTacToe = '';
 				gameStatus = '';
-                turn = "Player 1";
+				turn = 'Player 1';
 
 				count = 0;
 				gameEnd = '';
