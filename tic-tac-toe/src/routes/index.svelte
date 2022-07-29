@@ -1,9 +1,7 @@
 <script type="ts">
+	import { fade } from 'svelte/transition';
 
-import { fade } from 'svelte/transition';
-
-
-let fadeResults = true;
+	let fadeResults = true;
 
 	let arrayNumber = [
 		{ clicked: 0, number: 1 },
@@ -235,7 +233,7 @@ let fadeResults = true;
 <!--<h1 class="flex justify-center">{ticTacToe}</h1>-->
 
 {#if gameEnd !== ''}
-<h1 in:fade={{duration: 1000}} class="flex justify-center font-bold text-xl">{gameEnd}</h1>
+	<h1 in:fade={{ duration: 1000 }} class="flex justify-center font-bold text-xl">{gameEnd}</h1>
 {/if}
 
 <h1 class="flex justify-center ">
