@@ -1,4 +1,10 @@
 <script type="ts">
+
+import { fade } from 'svelte/transition';
+
+
+let fadeResults = true;
+
 	let arrayNumber = [
 		{ clicked: 0, number: 1 },
 		{ clicked: 0, number: 2 },
@@ -14,12 +20,11 @@
 	let gameEnd = '';
 	let gameStatus = '';
 	let turn = 'Player 1';
-
 	let ticTacToe = '';
 
 	function checkTTT(player: string) {
 		let checkNumber = 0;
-		player === 'Player 1'
+		player === 'Player 1' || player === 'Player'
 			? (checkNumber = 1)
 			: player === 'Player 2'
 			? (checkNumber = 2)
@@ -86,7 +91,7 @@
 			gameEnd = player + ' Tic Tac Toe';
 		}
 	}
-
+	//simulate computer "thinking" for half second
 	$: if (turn === 'Computer') {
 		setTimeout(computerGuess, 500);
 	}
@@ -96,7 +101,7 @@
 		let guessOptions: number[] = [];
 
 		arrayNumber.forEach((square) => {
-			square.clicked == 0 ? guessOptions.push(square.number) : '';
+			square.clicked === 0 ? guessOptions.push(square.number) : '';
 		});
 		console.log(guessOptions.toString());
 
@@ -106,23 +111,56 @@
 			} else {
 				var guessCorners = [0, 2, 6, 8];
 				let guess = guessCorners[Math.floor(Math.random() * guessCorners.length)];
-				arrayNumber[guess - 1].clicked = 3;
+				console.log(guess);
+				arrayNumber[guess].clicked = 3;
 			}
 		} else {
 			var guessNumber = guessOptions[Math.floor(Math.random() * guessOptions.length)];
 			console.log('Guess number:' + guessNumber);
 			arrayNumber[guessNumber - 1].clicked = 3;
 		}
+
 		if (count < 9) {
 			count = count + 1;
 			checkTTT('Computer');
 			turn = 'Player 1';
 		}
 	}
+
+	let scoreboard = {
+		twoPlayer: { player1: 0, player2: 0, catGame: 0 },
+		vsComputer: { player: 0, computer: 0, catGame: 0 }
+	};
+
+	$: if (gameEnd === 'Player 1 Tic Tac Toe') {
+		scoreboard.twoPlayer.player1 += 1;
+	}
+
+	$: if (gameEnd === 'Player 2 Tic Tac Toe') {
+		scoreboard.twoPlayer.player2 += 1;
+	}
+	$: if (gameEnd === 'Two Player Cat Game') {
+		scoreboard.twoPlayer.catGame += 1;
+	}
+
+	$: if (gameEnd === 'Player Tic Tac Toe') {
+		scoreboard.vsComputer.player += 1; // scoreboard.twoPlayer.player1 += 1;
+	}
+
+	$: if (gameEnd === 'Computer Tic Tac Toe') {
+		scoreboard.vsComputer.computer += 1; //= scoreboard.vsComputer.computer + 1;
+	}
+	$: if (gameEnd === 'Vs Computer Cat Game') {
+		scoreboard.vsComputer.catGame += 1;
+	}
+
+	$: (scoreboard: any) => {
+		console.log(scoreboard.toString());
+	};
 </script>
 
-<h1 class="flex mx-auto justify-center text-2xl font-bold">Tic Tac Toe</h1>
-<div class="h-96 w-96 justify-center mx-auto my-5 ">
+<h1 class="flex mx-auto justify-center text-2xl font-bold my-2">Tic Tac Toe</h1>
+<div class="h-96 w-96 justify-center mx-auto my-2 ">
 	<div class="grid grid-cols-3">
 		<!--Each Square 1-9 -->
 		{#each arrayNumber as square}
@@ -162,28 +200,25 @@
 							checkTTT('Player 2');
 							count = count + 1;
 							if (count == 9 && gameEnd === '') {
-								gameEnd = 'Cat Game';
+								gameEnd = 'Two Player Cat Game';
 							}
 						} else if (gameStatus === 'VsComputer') {
 							if (turn === 'Player 1') {
 								arrayNumber[square.number - 1].clicked = 1;
 								count = count + 1;
-							}
-							checkTTT('Player 1');
-							if ((gameEnd === '')) {
-								checkTTT('Computer');
+								checkTTT('Player');
+
+								if (count < 9) {
+									if (gameEnd === '') {
+										turn = 'Computer';
+									}
+								}
 							}
 
-							if (count < 9) {
-								turn = 'Computer';
-							}
-							if (count >  8){
-								if(gameEnd === ""){
-									gameEnd = 'Cat Game';
+							if (count > 8) {
+								if (gameEnd === '') {
+									gameEnd = 'Vs Computer Cat Game';
 								}
-							
-							
-								
 							}
 						}
 					}
@@ -197,16 +232,35 @@
 	</div>
 </div>
 
-<h1 class="flex justify-center">{ticTacToe}</h1>
-<h1>{gameEnd === '' ? '' : gameEnd}</h1>
-<h1 class="flex justify-center">
+<!--<h1 class="flex justify-center">{ticTacToe}</h1>-->
+
+{#if gameEnd !== ''}
+<h1 in:fade={{duration: 1000}} class="flex justify-center font-bold text-xl">{gameEnd}</h1>
+{/if}
+
+<h1 class="flex justify-center ">
 	{gameEnd !== '' ? '' : gameStatus !== '' ? turn + ' Turn' : ''}
 </h1>
-<h1>Count = {count}</h1>
-<h1 class="flex justify-center my-3">
+
+<h1 class="flex justify-center my-1">
 	{gameStatus === '' ? 'Select Either Two Player Game or Vs Computer to Start' : ''}
 </h1>
 
+<!--
+<h1>
+	Game end = {gameEnd}
+</h1>
+<h1>
+	gameStatus= {gameStatus}
+</h1>
+<h1>
+	turn= {turn}
+</h1>
+<h1>
+	ticTacToe = {ticTacToe}
+</h1>
+<h1>Count = {count}</h1>
+-->
 <div class="flex mx-auto justify-center space-x-5">
 	{#if gameStatus !== 'VsComputer'}
 		<!--Two Player Button -->
@@ -243,13 +297,12 @@
 				ticTacToe = '';
 				gameStatus = '';
 				turn = 'Player 1';
-
 				count = 0;
 				gameEnd = '';
 			}}
 			class={`border-2 border-black p-4 hover:bg-cyan-300 rounded-lg ${
 				gameEnd !== '' ? 'bg-yellow-200' : ''
-			} `}>Reset</button
+			} `}>Reset Game</button
 		>
 	{/if}
 
@@ -269,6 +322,37 @@
 			>Vs Computer
 		</button>
 	{/if}
+</div>
+<!-- Scoreboard-->
+<div class="border flex-col w-fit p-2 rounded-lg mx-auto justify-center my-2 bg-green-700">
+	<h1 class="flex justify-center mb-2 font-bold \">Scoreboard</h1>
+	<div class="space-x-3 flex justify-center rounded">
+		<div class="p-2 bg-green-500 rounded-lg">
+			<h1 class=" mb-1 font-semibold">Two Player</h1>
+			<h1 class="flex justify-center bg-blue-300 font-semibold p-1">
+				Player 1: {scoreboard.twoPlayer.player1}
+			</h1>
+			<h1 class="flex justify-center bg-red-300 font-semibold p-1">
+				Player 2: {scoreboard.twoPlayer.player2}
+			</h1>
+			<h1 class="flex justify-center bg-orange-300 font-semibold p-1">
+				Cat Games: {scoreboard.twoPlayer.catGame}
+			</h1>
+		</div>
+
+		<div class="p-2 bg-green-500 rounded-lg">
+			<h1 class=" mb-1 font-semibold">Vs Computer</h1>
+			<h1 class="flex justify-center bg-blue-300 font-semibold p-1">
+				Player: {scoreboard.vsComputer.player}
+			</h1>
+			<h1 class="flex justify-center bg-purple-300 font-semibold p-1">
+				Computer: {scoreboard.vsComputer.computer}
+			</h1>
+			<h1 class="flex justify-center bg-orange-300 font-semibold p-1">
+				Cat Games: {scoreboard.vsComputer.catGame}
+			</h1>
+		</div>
+	</div>
 </div>
 
 <style>
